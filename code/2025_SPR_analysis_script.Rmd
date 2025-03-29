@@ -1,0 +1,374 @@
+---
+title: "Analysis Script for School Psych Review Submission"
+author: "Shaina Trevino"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r renv}
+#SET UP RENV ONCE SCRIPT IS COMPLETE
+# Initialize Repo
+renv::init()
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE)
+
+# Install and load pacman package (not needed now with renv)
+#if (!require("pacman")) install.packages("pacman")
+
+# Install and load required packages
+pacman::p_load(tidyverse, rio, here)
+
+# Set file path for data importing
+cwd <- here::here("data")
+
+```
+
+## Overview
+
+This document reproduces the quantitative results reported in our publication submitted to School Psychology Review (SPR). Qualitative results were reproduced independently by another author and are not part of this document but can be confirmed using these data files. This file is not intended to be knitted - it is designed to be run chunk by chunk to reproduce results. The first two sections are importing and data cleaning code followed by code to reproduce our quantitative results. Code/results are presented in the order in which results are presented in the manuscript with corresponding subheadings. Data were exported on 2/26/2025 for analysis. Study and review characteristics were exported directly from DistillerSR, the demographic data file was exported from DistillerSR and re-formatted in Excel. 
+
+```{r import}
+# Import demographics data collected for this manuscript
+demo_df <- import(here(cwd, "2025_SPR_SchoolPsychRev_Data.xlsx"))
+
+# Import review level characteristics from DistillerSR
+review_df <- import(here(cwd, "2025_SPR_review_characteristics.xlsx"))
+
+# Import study level characteristics from DistillerSR
+study_df <- import(here(cwd, "2025_SPR_study_characteristics.xlsx"))
+
+
+```
+
+```{r tidy}
+# Specify numeric variables for calculations
+numeric_vars <- c("study_publication_year")
+
+study_df <- study_df %>% 
+  janitor::clean_names() %>% 
+  mutate(across(all_of(numeric_vars), as.numeric),
+         across(where(is.numeric), ~ na_if(., -999)))
+
+```
+
+## Results
+
+Number of eligible reviews:
+
+```{r elig-reviews}
+# Extract number of reviews
+nrow(review_df)
+
+```
+
+Number of eligible studies:
+
+```{r elig-study}
+# Extract number of included studies
+nrow(study_df)
+
+```
+
+Range of publication years for included studies:
+
+```{r study-year}
+# Calculate min/max study publication year
+study_df %>% 
+  summarize(min = min(study_publication_year, na.rm = TRUE),
+            max = max(study_publication_year, na.rm = TRUE))
+
+```
+
+Number of unique countries among included studies:
+
+```{r study-country}
+# Create df to show frequency of each country
+country_counts <- study_df %>%
+  pivot_longer(
+    cols = starts_with("study_country"),
+    names_to = "country_var",
+    values_to = "country"
+  ) %>%
+  filter(!is.na(country) & country != "") %>%
+  mutate(country = str_to_title(country)) %>%
+  count(country, name = "count") %>%
+  mutate(percent = round((count / sum(count)) * 100, 0)) %>%
+  arrange(desc(count))
+
+# Extract number of countries
+nrow(country_counts)
+
+```
+
+Number of studies conducted in each country (studies with multiple countries contribute to each listed country):
+
+```{r study-country-tbl}
+# Print country summary table
+country_counts
+
+```
+
+Number of studies reporting at least one PROGRESS domain:
+
+```{r demo-domain}
+# Specify progress domains
+progress_domains <- c("place of residence", "race, ethnicity, culture, and langugage", "occupation", 
+                      "gender and sex", "religion", "education", "social capital", "socioeconomic status")
+
+# Calculate number and percent studies reporting at least one progress domain
+length(unique(demo_df$refid))
+paste0(round(length(unique(demo_df$refid)) / nrow(study_df) * 100, 0), "%")
+
+```
+
+Number of studies by number of PROGRESS domain reported:
+
+```{r demo-results}
+# Calculate number and percent of studies per number of domains reported
+demo_df %>%
+  group_by(refid) %>% 
+  summarize(n_domains = n_distinct(domain, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  count(n_domains, name = "n_studies") %>% 
+  mutate(percent = round(n_studies / sum(n_studies) * 100, 0))
+
+```
+
+### Place of Residence
+
+Number of studies reporting place of residence:
+
+```{r domain-place}
+# Calculate number and percent of studies reporting rurality
+demo_df %>% 
+  filter(domain == "Place") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+### Race, Ethnicity, Culture, and Language
+
+Number of studies reporting information on student race, ethnicity, culture, and language:
+
+```{r domain-race}
+# Calculate number and percent reporting info on race, ethnicity, culture, and language
+demo_df %>% 
+  filter(domain == "Race/ethnicity/culture/language") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting student language:
+
+```{r domain-language}
+# Calculate number and percent reporting student language
+demo_df %>% 
+  filter(domain == "Race/ethnicity/culture/language" & demographic == "Language") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting student nationality:
+
+```{r domain-nationality}
+# Calculate number and percent reporting student nationality
+demo_df %>% 
+  filter(domain == "Race/ethnicity/culture/language" & demographic == "Nationality") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+### Occupation
+
+Number of studies reporting parental occupation:
+
+```{r domain-occupation}
+# Calculate number and percent of studies reporting parental occupation
+demo_df %>% 
+  filter(domain == "Occupation") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+### Gender
+
+Number of studies reporting information on student gender or sex:
+
+```{r domain-gender}
+# Calculate number and percent of studies reported information on gender/sex
+demo_df %>% 
+  filter(domain == "Gender/sex") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies providing options for transgender:
+
+```{r domain-trans}
+# Calculate number and percent of studies providing options for transgender
+demo_df %>% 
+  filter(domain == "Gender/sex",
+         str_detect(measure, regex("transgender", ignore_case = TRUE))) %>% 
+  summarise(unique_refid_count = n_distinct(refid))
+
+```
+
+Number of studies providing options for "prefer not to specify":
+
+```{r domain-notspecified}
+# Calculate number and percent of studies providing options for prefer not to specify
+demo_df %>% 
+  filter(domain == "Gender/sex",
+         str_detect(measure, regex("prefer not to", ignore_case = TRUE))) %>% 
+  summarise(unique_refid_count = n_distinct(refid))
+
+```
+
+Number of studies reporting student sexual orientation:
+
+```{r domain-sexorien}
+# Calculate number and percent of studies reporting sexual orientation
+demo_df %>% 
+  filter(domain == "Gender/sex",
+         demographic == "Sexual orientation") %>% 
+  summarise(unique_refid_count = n_distinct(refid))
+
+```
+
+### Religion
+
+Number of studies reporting student religion:
+
+```{r domain-religion}
+# Calculate number and percent of studies reporting religion
+demo_df %>% 
+  filter(domain == "Religion") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+### Education
+
+Number of studies reporting any information related to education:
+
+```{r domain-education}
+# Calculate number and percent of studies reporting education domain
+demo_df %>% 
+  filter(domain == "Education") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting parent education:
+
+```{r domain-parent-edu}
+# Calculate number and percent reporting parent education
+demo_df %>% 
+  filter(domain == "Education",
+         demographic == "Parent's education") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting student special education status or needs:
+
+```{r domain-sped}
+# Calculate number and percent reporting special education
+demo_df %>% 
+  filter(domain == "Education",
+         demographic == "Special education") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting student advanced placement status:
+
+```{r domain-adv-plac}
+# Calculate number and percent reporting advanced placement
+demo_df %>% 
+  filter(domain == "Education",
+         demographic == "Advanced placement") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting participation in educational programs:
+
+```{r domain-edu-prog}
+# Calculate number and percent reporting school programs
+demo_df %>% 
+  filter(domain == "Education",
+         demographic == "School program") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+### Social Capital
+
+Number of studies reporting information on student social capital:
+
+```{r domain-social-capital}
+# Calculate number and percent of studies reporting social capital domain
+demo_df %>% 
+  filter(domain == "Social capital") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting each sub-domain of social capital (studies with multiple domains are counted in each category):
+
+```{r domain-social-tbl}
+# Calculate frequencies of specific social capital domains reported
+demo_df %>% 
+  filter(domain == "Social capital") %>% 
+  group_by(demographic) %>% 
+  summarize(n = n_distinct(refid),
+            percent = round(n / nrow(study_df) * 100, 0))
+
+```
+
+### Socioeconomic Status
+
+Number of studies reporting information on socioeconomic status (SES):
+
+```{r domain-ses}
+# Calculate number of studies reporting SES domain
+demo_df %>% 
+  filter(domain == "Socioeconomic status") %>% 
+  summarize(n_unique_refid = n_distinct(refid),
+            percent = round(n_unique_refid / nrow(study_df) * 100, 0))
+
+```
+
+Number of studies reporting each sub-domain of SES:
+
+```{r domain-ses-tbl}
+# Calculate frequencies of specific SES domains
+demo_df %>% 
+  filter(domain == "Socioeconomic status") %>% 
+  group_by(demographic) %>% 
+  summarize(n = n_distinct(refid),
+            percent = round(n / nrow(study_df) * 100, 0))
+
+```
+
+
+
+
