@@ -25,13 +25,13 @@ This document reproduces the quantitative results reported in our publication su
 
 ```{r import}
 # Import demographics data collected for this manuscript
-demo_df <- import(here(cwd, "2025_SPR_SchoolPsychRev_Data.xlsx"))
+demo_df <- import(here(cwd, "2025_SPR_SchoolPsychRev_Data.xlsx"), sheet = "data")
 
 # Import review level characteristics from DistillerSR
-review_df <- import(here(cwd, "2025_SPR_review_characteristics.xlsx"))
+review_df <- import(here(cwd, "2025_SPR_review_characteristics.xlsx"), sheet = "raw_data")
 
 # Import study level characteristics from DistillerSR
-study_df <- import(here(cwd, "2025_SPR_study_characteristics.xlsx"))
+study_df <- import(here(cwd, "2025_SPR_study_characteristics.xlsx"), sheet = "raw_data")
 
 
 ```
