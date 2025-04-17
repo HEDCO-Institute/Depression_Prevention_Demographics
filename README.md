@@ -104,13 +104,15 @@ Opening the `Depression_Prevention_Demographics` R project will automatically in
 ```r
 if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
 ```
-2. Load the environment:
-```r
-renv::load()
-```
-3. Restore any missing packages:
+
+2. Restore any missing packages:
 ```r
 renv::restore()
+```
+
+3. If needed, load the environment:
+```r
+renv::load()
 ```
 
 Once the environment is restored, run the script starting with loading the necessary packages:
