@@ -5,6 +5,14 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+```{r renv, include = FALSE}
+# To manually load the reproducible environment
+if (!require("renv")) install.packages("renv")
+renv::restore()
+
+```
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warnings = FALSE)
 
