@@ -13,7 +13,7 @@
 This folder contains the replication materials for the following publication:  
 
 <!-- TODO: INSERT CITATION/DOI AFTER PUBLICATION -->
-Grant, S., Dussan, H., Sebree, M., Trevino, S. D., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2024). Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology.
+Grant, S., Dussan, H., Sebree, M., Trevino, S. D., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2025). Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology.
 
 This replication package follows **[AEA Data and Code Availability Standards](https://datacodestandard.org/)** and includes:
 - Datasets used to generate reported results.
@@ -43,7 +43,7 @@ The analysis script used to generate quantitative results for this publication i
 Please cite this version of the data as follows:
 
 <!-- TODO: INSERT CITATION/DOI AFTER PUBLICATION -->
-Grant, S., Dussan, H., Sebree, M., Trevino, S. D., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2024). Data for "Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology." OSF.
+Trevino, S. D., Grant, S., Dussan, H., Sebree, M., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2025). Data for "Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology." OSF.
 
 ### **Handling of Missing Data**
 - Missing values in the datasets are coded as `-999`, `Not Reported`, or `NA` and indicate those values were not reported in studies/reviews.
