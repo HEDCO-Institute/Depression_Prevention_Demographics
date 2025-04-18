@@ -3,8 +3,8 @@
 <!-- TODO: UPDATE WITH NEW STRUCTURE NOW ITS OWN REPO, NOT PUBLICATIONS SUBFOLDER--->
 
 **Date of Release:** 3/31/2025  
-**Title:** Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology
-**OSF Component:** <https://osf.io/> <br> <!-- TODO: INSERT LINK AFTER PUBLICATION -->
+**Title:** Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology <br>
+**OSF Component:** <https://osf.io/tjnr6/> <br> <!-- TODO: INSERT LINK AFTER PUBLICATION -->
 **Package Author:** Shaina Trevino 
 
 
@@ -43,7 +43,7 @@ The analysis script used to generate quantitative results for this publication i
 Please cite this version of the data as follows:
 
 <!-- TODO: INSERT CITATION/DOI AFTER PUBLICATION -->
-Trevino, S. D., Grant, S., Dussan, H., Sebree, M., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2025). Data for "Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology." OSF.
+Trevino, S. D., Grant, S., Dussan, H., Sebree, M., Steinka-Fry, K., Chinn, L. K., Day, E., & Tanner-Smith, E. E. (2025). Data for "Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology." [OSF](https://osf.io/tjnr6/). DOI 10.17605/OSF.IO/TJNR6
 
 ### **Handling of Missing Data**
 - Missing values in the datasets are coded as `-999`, `Not Reported`, or `NA` and indicate those values were not reported in studies/reviews.
