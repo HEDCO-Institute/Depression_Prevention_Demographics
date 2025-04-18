@@ -5,18 +5,30 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+```{r troubleshoot, include = FALSE}
+# If you are having trouble loading the environment. Open a new Rstudio (not this project) and install renv manually load the reproducible environment with the following code
+#if (!require("renv")) install.packages("renv")
+
+```
+
 ```{r renv, include = FALSE}
-# To manually load the reproducible environment
-if (!require("renv")) install.packages("renv")
+# Manually load the reproducible environment
+# If this doesn't work the first time, try running it in the console
 renv::restore()
+
+# If you are having issues restoring renv, uncomment and run this code (or try installing Rtools)
+#options(pkgType = "binary")
+#renv::restore()
+
+# If you are still having issues, you should be able to run the next code chunk to manually install and load required packages, but versions may differ
 
 ```
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warnings = FALSE)
+#knitr::opts_chunk$set(echo = TRUE, warnings = FALSE)
 
-# Install and load pacman package (not needed now with renv)
+# Install and load pacman package (if having issues with renv)
 #if (!require("pacman")) install.packages("pacman")
 
 # Install and load required packages
