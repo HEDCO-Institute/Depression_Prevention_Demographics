@@ -32,7 +32,7 @@ renv::restore()
 #if (!require("pacman")) install.packages("pacman")
 
 # Install and load required packages
-pacman::p_load(tidyverse, rio, here)
+pacman::p_load(tidyverse, rio, here, janitor)
 
 # Set file path for data importing
 cwd <- here::here("data")
