@@ -29,7 +29,7 @@ renv::restore()
 #knitr::opts_chunk$set(echo = TRUE, warnings = FALSE)
 
 # Install and load pacman package (if having issues with renv)
-#if (!require("pacman")) install.packages("pacman")
+if (!require("pacman")) install.packages("pacman")
 
 # Install and load required packages
 pacman::p_load(tidyverse, rio, here, janitor)
