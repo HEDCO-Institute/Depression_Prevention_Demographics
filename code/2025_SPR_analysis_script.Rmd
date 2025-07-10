@@ -53,6 +53,9 @@ review_df <- import(here(cwd, "2025_SPR_review_characteristics.xlsx"), sheet = "
 # Import study level characteristics from DistillerSR
 study_df <- import(here(cwd, "2025_SPR_study_characteristics.xlsx"), sheet = "raw_data")
 
+# Import study eligibility decisions from first overview publication (per reviewer comment 5/1/25)
+jccp_elig <- import(here(cwd, "2025_SPR_citation_matrix.xlsx"), sheet = "eligibility_decisions")
+
 
 ```
 
@@ -149,6 +152,7 @@ demo_df %>%
   mutate(percent = round(n_studies / sum(n_studies) * 100, 0))
 
 ```
+
 
 ### Place of Residence
 
@@ -381,6 +385,197 @@ demo_df %>%
 
 ```
 
+## Figure 1. Heatmap of PROGRESS Domains Reported Across Included Studies
+
+```{r heatmap-main}
+# Extract refids and study names
+refid_studyname <- study_df %>% 
+  select(refid, study_author_year) %>% 
+  rename(study = study_author_year)
+
+# Summarize to 1 if a refid reported anything in the domain
+domain_matrix <- demo_df %>%
+  distinct(refid, domain) %>%
+  mutate(value = 1) %>%
+  pivot_wider(names_from = domain, values_from = value, values_fill = 0) %>% 
+  left_join(refid_studyname) %>% 
+  select(-refid) %>% 
+  rename(`Race/ethnicity*` = `Race/ethnicity/culture/language`,
+         SES= `Socioeconomic status`)
+
+# Convert to long
+heatmap_data <- domain_matrix %>%
+  pivot_longer(-study, names_to = "domain", values_to = "reported")
+heatmap_data <- heatmap_data %>%
+  mutate(study = as.factor(study))
 
 
+# Plot
+ggplot(heatmap_data, aes(x = fct_reorder(domain, reported, .fun = sum, .desc = TRUE),
+                         y = fct_rev(study), fill = factor(reported))) +
+  geom_tile(color = "white") +
+  scale_fill_manual(values = c("0" = "lightgray", "1" = "steelblue"),
+                    name = "Reported",
+                    labels = c("No", "Yes")) +
+  theme_minimal() +
+  labs(x = "Domain", y = "Study") +
+  theme(axis.text.y = element_text(size = 7),
+        axis.text.x = element_text(size = 10))
+
+
+#title = "Reporting of Demographic Domains by Study",
+#caption = "*Race/Ethnicity also includes culture and language; SES = Socioeconomic status"
+
+
+```
+
+## Supplemental Materials
+
+Supplemental materials were added per peer-reviewer feedback. 
+
+### S1: PRISMA Flow Diagram
+
+Unfortunately, there is not code to produce most of the numbers reported for the PRISMA flow diagram from our search since they were taken directly from DistillerSR and Zotero/FileMaker at the time of our first overview (https://doi.org/10.1037/ccp0000930). At the time, we did not have a system in place for taking snapshots of all search or screening data from DistillerSR and cannot pull those retrospectively since we have continued to update our search and screening numbers for our living review. Numbers that were pulled directly from DistillerSR include:
+> Number of records identified from search: 18,083
+> Duplicates removed: 3,522
+> Records screened: 14,561
+> Records excluded: 12,235
+> Reports sought for retrieval: 2,326
+> Reports not retrieved: 21
+> Reports assessed for eligibility: 2,305
+> Reviews and reports (k) excluded (n = 2,268, k = 2,109):
+>> Anxiety focus only (k = 154)
+>> Ineligible population (k = 130)
+>> Ineligible interventions (k = 868)
+>> Ineligible comparator (k = 55)
+>> Ineligible outcomes (k = 49)
+>> Ineligible setting (k = 236)
+>> Ineligible study design (k = 467)
+>> Ineligible publication type (k = 114)
+>> Unclear – need more details (k = 36)
+> Reports included: k = 37
+
+```{r PRISMA}
+# Extract number of included reviews
+nrow(review_df)
+
+# Calculate number of studies excluded
+sum(jccp_elig$decision == "Exclude") + sum(jccp_elig$decision == "Unclear")
+
+# Table of study exclude reasons (from first overview in JCCP)
+summary(as.factor(jccp_elig$reason))
+
+# Number of unclear
+sum(jccp_elig$decision == "Unclear")
+
+
+# Extract number of included studies
+nrow(study_df)
+```
+
+### Heatmaps
+
+Heatmaps were added per a reviewer comment to more easily summarize the patterns of reporting across all studies. 
+
+```{r heatmap-demo-separate}
+# Plot separately
+# Step 1: Prepare the data
+heatmap_demo <- demo_df %>%
+  distinct(refid, domain, demographic) %>%
+  left_join(refid_studyname) %>% 
+  select(-refid) %>% 
+  mutate(
+    demographic = ifelse(demographic == "Free/reduced school meals", "Free/reduced meals", demographic), 
+    domain = ifelse(domain == "Race/ethnicity/culture/language", "Race/ethnicity", domain), 
+    refid = as.factor(study),
+    demographic = as.factor(demographic),
+    reported = 1
+  ) %>% 
+  select(-study)
+
+# Step 2: Nest the data by domain
+plots_by_domain <- heatmap_demo %>%
+  # split into one tibble per domain
+  group_split(domain) %>%
+  set_names(map_chr(., ~ unique(.x$domain))) %>%
+  map(~ {
+    # 1) stash the domain name before we lose it
+    domain_name <- unique(.x$domain)
+    
+    # 2) expand only the refids/demographics present in this slice
+    df <- expand_grid(
+      refid       = unique(.x$refid),
+      demographic = unique(.x$demographic)
+    ) %>%
+      left_join(.x, by = c("refid","demographic")) %>%
+      mutate(reported = replace_na(reported, 0))
+    
+    # 3) your ggplot, with a proper title now
+    ggplot(df, aes(
+             x    = fct_reorder(demographic, reported, sum, .desc = TRUE),
+             y    = fct_rev(refid),
+             fill = factor(reported, levels = c("0","1"))
+           )) +
+      geom_tile(color = "white") +
+      scale_fill_manual(
+        values = c("0" = "lightgray", "1" = "steelblue"),
+        name   = "Reported",
+        labels = c("No", "Yes"),
+        drop   = FALSE
+      ) +
+      theme_minimal() +
+      labs(
+        #title = paste("Demographic Reporting for", domain_name),
+        x     = "Demographic",
+        y     = "Study"
+      ) +
+      theme(
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 9),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        legend.title    = element_text(size = 14),  # make the “Reported” title larger
+        legend.text     = element_text(size = 12),  # make the “Yes”/“No” labels larger
+        legend.key.size = unit(1.2, "lines") 
+      )
+  })
+
+# View and order
+plots_by_domain[["Place"]]
+
+plots_by_domain[["Race/ethnicity"]]
+
+plots_by_domain[["Occupation"]] +
+  theme(
+    axis.text.y = element_text(size = 11)
+  )
+
+plots_by_domain[["Gender/sex"]] +
+  theme(
+    axis.text.y = element_text(size = 8)
+  )
+
+plots_by_domain[["Religion"]] +
+  theme(
+    axis.text.y = element_text(size = 11)
+  )
+
+plots_by_domain[["Education"]] +
+  theme(
+    axis.text.y = element_text(size = 11)
+  )
+
+plots_by_domain[["Social capital"]] +
+  theme(
+    axis.text.y = element_text(size = 11)
+  )
+
+plots_by_domain[["Socioeconomic status"]] +
+  theme(
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 11)
+  )
+
+
+```
 
