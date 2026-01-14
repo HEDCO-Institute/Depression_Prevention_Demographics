@@ -1,10 +1,9 @@
 
 # **Replication Package for 2025 School Psychology Review Publication**
-<!-- TODO: UPDATE WITH NEW STRUCTURE NOW ITS OWN REPO, NOT PUBLICATIONS SUBFOLDER--->
 
 **Date of Release:** 3/31/2025  
 **Title:** Reporting of Student Demographics in School-Based Depression Prevention Trials: The Need for a Core Baseline Set in School Psychology <br>
-**OSF Component:** <https://osf.io/tjnr6/> <br> <!-- TODO: INSERT LINK AFTER PUBLICATION -->
+**OSF Component:** <https://osf.io/tjnr6/> <br>
 **Package Author:** Shaina Trevino 
 
 
